@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 #include <WiFiClientSecure.h>
 #define Duman_sensor A0
-#define BOT_TOKEN ""
+#define BOT_TOKEN "" //We need to add our bot token.
 #define CHAT_ID "338442260"
 const char *ssid =  "Redmi";
 const char *pass =  "halil123";
