@@ -5,8 +5,8 @@
 #define Duman_sensor A0
 #define BOT_TOKEN "" //We need to add our bot token.
 #define CHAT_ID "338442260"
-const char *ssid =  "Redmi";
-const char *pass =  "halil123";
+const char *SSID =  "WIFI_SSID";
+const char *WIFI_PASSWORD =  "WIFI_PASSWORD";
 int BuzzerPin = D3;
 int LED_yesil = D1;
 int LED_kirmizi = D2;
@@ -21,7 +21,7 @@ UniversalTelegramBot bot(BOT_TOKEN, client);
 
 void setup() {
   Serial.begin(115200);
-  WiFi.begin(ssid,pass);
+  WiFi.begin(SSID,WIFI_PASSWORD);
   pinMode(flamePin,INPUT);
   pinMode(BuzzerPin,OUTPUT);
   pinMode(LED_yesil,OUTPUT);
