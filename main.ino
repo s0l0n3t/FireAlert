@@ -2,18 +2,18 @@
 #include <UniversalTelegramBot.h>
 #include <ArduinoJson.h>
 #include <WiFiClientSecure.h>
-#define Duman_sensor A0
-#define BOT_TOKEN "" //We need to add our bot token.
+#define SMOKE_SENSOR_PIN A0
+#define BOT_TOKEN "CREATED BOT TOKEN" 
 #define CHAT_ID "338442260"
 const char *SSID =  "WIFI_SSID";
 const char *WIFI_PASSWORD =  "WIFI_PASSWORD";
-int BuzzerPin = D3;
-int LED_yesil = D1;
-int LED_kirmizi = D2;
-int LED_mavi = D0;
-int flamePin = D5;
-float gasREAD = 0;
-int flameDig = 0;
+int const BUZZER_PIN = D3;
+int const LED_GREEN = D1;
+int const LED_RED = D2;
+int const LED_BLUE = D0;
+int const FLAME_SENSOR_PIN = D5;
+float smokeVar = 0;
+int flameVar = 0;
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 WiFiClientSecure client;
 UniversalTelegramBot bot(BOT_TOKEN, client);
@@ -22,10 +22,10 @@ UniversalTelegramBot bot(BOT_TOKEN, client);
 void setup() {
   Serial.begin(115200);
   WiFi.begin(SSID,WIFI_PASSWORD);
-  pinMode(flamePin,INPUT);
-  pinMode(BuzzerPin,OUTPUT);
-  pinMode(LED_yesil,OUTPUT);
-  pinMode(LED_kirmizi,OUTPUT);
+  pinMode(FLAME_SENSOR_PIN,INPUT);
+  pinMode(BUZZER_PIN,OUTPUT);
+  pinMode(LED_GREEN,OUTPUT);
+  pinMode(LED_RED,OUTPUT);
   configTime(0, 0, "pool.ntp.org");
   client.setTrustAnchors(&cert);
   attachInterrupt(digitalPinToInterrupt(2), interrupt_func, RISING);//Kesme modu
@@ -34,77 +34,77 @@ void setup() {
 
 void loop() {
   if(WiFi.status() == WL_CONNECTED){
-  analogWrite(BuzzerPin,0);
-  gasREAD = analogRead(Duman_sensor);
-  flameDig = digitalRead(flamePin);
-  Serial.println(gasREAD);
-  Serial.println(flameDig);
+  analogWrite(BUZZER_PIN,0);
+  smokeVar = analogRead(SMOKE_SENSOR_PIN);
+  flameVar = digitalRead(FLAME_SENSOR_PIN);
+  Serial.println(smokeVar);
+  Serial.println(flameVar);
   delay(500);
   
-  if(gasREAD >= 285  && flameDig == LOW){
-    digitalWrite(LED_mavi,0); 
-    digitalWrite(LED_kirmizi,1);
-    digitalWrite(LED_yesil,0);
+  if(smokeVar >= 285  && flameVar == LOW){
+    digitalWrite(LED_BLUE,0); 
+    digitalWrite(LED_RED,1);
+    digitalWrite(LED_GREEN,0);
     Serial.println("WARNING ! GAS LEAK AND FLAME");
-    Serial.println(gasREAD);
-    Serial.println(flameDig);
-    analogWrite(BuzzerPin,180);
+    Serial.println(smokeVar);
+    Serial.println(flameVar);
+    analogWrite(BUZZER_PIN,180);
     bot.sendMessage(CHAT_ID, "GAZ KAÇAĞI VE YANGIN ALARMI ! LÜTFEN 112 ARAYIN.", ""); //telegram message
     delay(500);
     }
   
    //Yesil led yaniyor
   
-  else if(gasREAD < 285 && flameDig == LOW){ //LOW -> flame enabled
-    digitalWrite(LED_mavi,0);
-    digitalWrite(LED_kirmizi,1);
-    digitalWrite(LED_yesil,0);
+  else if(smokeVar < 285 && flameVar == LOW){ //LOW -> flame enabled
+    digitalWrite(LED_BLUE,0);
+    digitalWrite(LED_RED,1);
+    digitalWrite(LED_GREEN,0);
     Serial.println("WARNING ! FLAME");
-    Serial.println(flameDig);
-    analogWrite(BuzzerPin,180);
+    Serial.println(flameVar);
+    analogWrite(BUZZER_PIN,180);
     bot.sendMessage(CHAT_ID, "YANGIN ALARMI ! LÜTFEN 112 ARAYIN.", ""); //telegram message
     delay(500);
   }
-  else if(gasREAD >= 285 && flameDig == HIGH){ //LOW -> flame enabled
-    digitalWrite(LED_mavi,0);
-    digitalWrite(LED_kirmizi,1);
-    digitalWrite(LED_yesil,0);
+  else if(smokeVar >= 285 && flameVar == HIGH){ //LOW -> flame enabled
+    digitalWrite(LED_BLUE,0);
+    digitalWrite(LED_RED,1);
+    digitalWrite(LED_GREEN,0);
     Serial.println("WARNING ! GAS LEAK");
-    Serial.println(flameDig);
-    analogWrite(BuzzerPin,180);
+    Serial.println(flameVar);
+    analogWrite(BUZZER_PIN,180);
     bot.sendMessage(CHAT_ID, "GAZ KAÇAĞI ALARMI ! LÜTFEN 112 ARAYIN.", ""); //telegram message
     delay(500);
   }
-  else if(gasREAD > 700){
+  else if(smokeVar > 700){
     digitalWrite(d4,1);//Kesme aktif hale gelir.
   }
 
   else{
 
-  digitalWrite(LED_mavi,0);
-  digitalWrite(LED_kirmizi,0);
-  digitalWrite(LED_yesil,1);
+  digitalWrite(LED_BLUE,0);
+  digitalWrite(LED_RED,0);
+  digitalWrite(LED_GREEN,1);
   
   }
   }
   else{
-    digitalWrite(LED_mavi,0);
-    digitalWrite(LED_kirmizi,1);
-    digitalWrite(LED_yesil,0);
+    digitalWrite(LED_BLUE,0);
+    digitalWrite(LED_RED,1);
+    digitalWrite(LED_GREEN,0);
     Serial.println("No connection !");
     delay(400);
-    digitalWrite(LED_mavi,0);
-    digitalWrite(LED_kirmizi,0);
-    digitalWrite(LED_yesil,0);
+    digitalWrite(LED_BLUE,0);
+    digitalWrite(LED_RED,0);
+    digitalWrite(LED_GREEN,0);
     Serial.println("No connection !");
     delay(400);
   }
   
 }
   void interrupt_func(){
-    digitalWrite(LED_mavi,0);
-    digitalWrite(LED_kirmizi,1);
-    digitalWrite(LED_yesil,0);
+    digitalWrite(LED_BLUE,0);
+    digitalWrite(LED_RED,1);
+    digitalWrite(LED_GREEN,0);
     //Kirmizi led aktif
     bot.sendMessage(CHAT_ID, "Sensör arızası.Teknik servis ile iletişim kuruldu.", ""); //telegram service message
   }
